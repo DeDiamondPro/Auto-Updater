@@ -1,14 +1,14 @@
 [
   {
-    "modid": "forgetemplate",
-    "name": "ForgeTemplate",
-    "description": "An example template",
+    "modid": "autoupdater",
+    "name": "Auto Updater",
+    "description": "Auto Updater",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "url": "",
     "updateUrl": "",
     "authorList": [
-      ""
+      "DeDiamondPro"
     ],
     "credits": "",
     "logoFile": "",
