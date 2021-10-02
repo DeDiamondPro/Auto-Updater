@@ -47,9 +47,9 @@ public class ModUpdater {
                         String tag = null;
                         if (Config.modData.containsKey(modid))
                             tag = Config.modData.get(modid).tag;
-                        if (info.has("updateUrl") && !info.get("updateUrl").getAsString().equals(""))
+                        if (info.has("updateUrl") && githubPattern.matcher(info.get("updateUrl").getAsString()).matches())
                             url = info.get("updateUrl").getAsString();
-                        else if (info.has("url") && !info.get("url").getAsString().equals(""))
+                        else if (info.has("url") && githubPattern.matcher(info.get("url").getAsString()).matches())
                             url = info.get("url").getAsString();
                         else if (Config.modData.containsKey(modid))
                             url = Config.modData.get(modid).url;
@@ -78,7 +78,6 @@ public class ModUpdater {
                                 JsonObject release = element1.getAsJsonObject();
                                 if ((data.tag == null || !data.tag.equals(release.get("tag_name").getAsString())) && release.has("assets")) {
                                     for (JsonElement element2 : release.getAsJsonObject().getAsJsonArray("assets")) {
-
                                         JsonObject asset = element2.getAsJsonObject();
                                         String downloadUrl = asset.get("browser_download_url").getAsString();
                                         String name = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1);
@@ -89,10 +88,12 @@ public class ModUpdater {
                                         WebUtils.downloadFile(downloadUrl, cache);
                                         if (validateMCVersion(cache)) {
                                             if (modFiles.get(data.id).delete()) {
-                                                Files.copy(cache.toPath(), new File("mods/" + name).toPath(), StandardCopyOption.REPLACE_EXISTING);
-                                                cache.delete();
+                                                Files.copy(cache.toPath(), modFiles.get(data.id).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                                if (!cache.delete())
+                                                    System.out.println("Could not delete cache for mod: " + data.id);
                                                 Config.modData.get(data.id).tag = release.get("tag_name").getAsString();
-                                            }
+                                            } else
+                                                System.out.println("Could not update " + data.id + ".");
                                             done = true;
                                             break;
                                         } else {
