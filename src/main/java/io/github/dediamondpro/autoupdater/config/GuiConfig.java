@@ -16,7 +16,7 @@ import java.util.List;
 public class GuiConfig extends GuiScreen {
 
     private boolean repeatKeys;
-    private List<GuiTextField> textFields = new ArrayList<>();
+    private final List<GuiTextField> textFields = new ArrayList<>();
 
     @Override
     public boolean doesGuiPauseGame() {
