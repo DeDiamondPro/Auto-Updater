@@ -33,9 +33,9 @@ public class GuiConfig extends GuiScreen {
             ModData mod = (ModData) Config.modData.values().toArray()[i];
             int y = i * 50 + 10;
             textFields.add(new GuiTextField(i, Minecraft.getMinecraft().fontRendererObj, 100, y - 5, 200, 20));
+            textFields.get(i).setMaxStringLength(1000);
             if (mod.url != null)
                 textFields.get(i).setText(mod.url);
-            textFields.get(i).setMaxStringLength(1000);
         }
     }
 
