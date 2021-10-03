@@ -1,6 +1,6 @@
 package io.github.dediamondpro.autoupdater.tweaker;
 
-import io.github.dediamondpro.autoupdater.ModUpdater;
+import io.github.dediamondpro.autoupdater.updater.ModUpdater;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import java.util.Map;

@@ -33,6 +33,9 @@ public class Config {
     }
 
     public static void save() {
+        File folder = new File("config/AutoUpdater");
+        if(!folder.exists() && !folder.mkdir())
+            throw new IllegalStateException("Could not create AutoUpdater folder");
         try {
             String json = new Gson().toJson(modData);
             FileUtils.writeFile("config/AutoUpdater/AutoUpdater.json", json);

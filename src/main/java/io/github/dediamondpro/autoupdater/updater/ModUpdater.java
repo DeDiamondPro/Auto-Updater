@@ -1,4 +1,4 @@
-package io.github.dediamondpro.autoupdater;
+package io.github.dediamondpro.autoupdater.updater;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -41,19 +41,20 @@ public class ModUpdater {
             if (mod.isFile() && mod.getName().endsWith(".jar")) {
                 try {
                     JsonObject info = getMcMod(mod);
-                    if (info.has("modid")) {
+                    if (info.has("modid") && info.has("name")) {
                         String modid = info.get("modid").getAsString();
-                        String url = null;
-                        String tag = null;
+                        ModData data = new ModData(modid, null, null, info.get("name").getAsString());
                         if (Config.modData.containsKey(modid))
-                            tag = Config.modData.get(modid).tag;
-                        if (info.has("updateUrl") && githubPattern.matcher(info.get("updateUrl").getAsString()).matches())
-                            url = info.get("updateUrl").getAsString();
-                        else if (info.has("url") && githubPattern.matcher(info.get("url").getAsString()).matches())
-                            url = info.get("url").getAsString();
-                        else if (Config.modData.containsKey(modid))
-                            url = Config.modData.get(modid).url;
-                        newData.put(modid, new ModData(modid, tag, url));
+                            data = Config.modData.get(modid);
+                        else {
+                            if (Config.modData.containsKey(modid))
+                                data.tag = Config.modData.get(modid).tag;
+                            if (info.has("updateUrl") && githubPattern.matcher(info.get("updateUrl").getAsString()).matches())
+                                data.url = info.get("updateUrl").getAsString();
+                            else if (info.has("url") && githubPattern.matcher(info.get("url").getAsString()).matches())
+                                data.url = info.get("url").getAsString();
+                        }
+                        newData.put(modid, data);
                         modFiles.put(modid, mod);
                     }
                 } catch (IOException ignored) {
@@ -65,7 +66,7 @@ public class ModUpdater {
 
     private static void update() {
         for (ModData data : Config.modData.values()) {
-            if (data.url != null) {
+            if (data.url != null && data.update) {
                 Matcher githubMatcher = githubPattern.matcher(data.url);
                 if (githubMatcher.matches()) {
                     JsonElement json = WebUtils.getRequest("https://api.github.com/repos/" + githubMatcher.group("user")
