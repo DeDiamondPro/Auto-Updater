@@ -39,7 +39,7 @@ public class WebUtils {
     public static void downloadFile(String url, File location) {
         try {
             URLConnection con = new URL(url).openConnection();
-            con.setRequestProperty("User-Agent", "mmc-auto-updater");
+            con.setRequestProperty("User-Agent", "Auto-Updater");
             InputStream in = con.getInputStream();
             Files.copy(in, location.toPath(), StandardCopyOption.REPLACE_EXISTING);
             in.close();
