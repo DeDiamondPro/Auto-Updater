@@ -8,6 +8,7 @@ import io.github.dediamondpro.autoupdater.config.Config;
 import io.github.dediamondpro.autoupdater.data.ModData;
 import io.github.dediamondpro.autoupdater.utils.WebUtils;
 import net.minecraftforge.fml.common.Loader;
+import org.lwjgl.Sys;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +70,8 @@ public class ModUpdater {
             if (data.url != null && data.update) {
                 Matcher githubMatcher = githubPattern.matcher(data.url);
                 if (githubMatcher.matches()) {
+                    System.out.println("Fetching https://api.github.com/repos/" + githubMatcher.group("user")
+                            + "/" + githubMatcher.group("repo") + "/releases");
                     JsonElement json = WebUtils.getRequest("https://api.github.com/repos/" + githubMatcher.group("user")
                             + "/" + githubMatcher.group("repo") + "/releases");
                     if (json != null) {
@@ -86,6 +89,7 @@ public class ModUpdater {
                                         if (!cacheDir.exists() && !cacheDir.mkdir())
                                             throw new IllegalStateException("Could not create cache folder");
                                         File cache = new File(cacheDir, name);
+                                        System.out.println("Downloading " + downloadUrl);
                                         WebUtils.downloadFile(downloadUrl, cache);
                                         if (validateMCVersion(cache)) {
                                             if (modFiles.get(data.id).delete()) {
@@ -93,11 +97,13 @@ public class ModUpdater {
                                                 if (!cache.delete())
                                                     System.out.println("Could not delete cache for mod: " + data.id);
                                                 Config.modData.get(data.id).tag = release.get("tag_name").getAsString();
+                                                System.out.println("Succesfully updated " + data.id + " to " + release.get("tag_name").getAsString());
                                             } else
                                                 System.out.println("Could not update " + data.id + ".");
                                             done = true;
                                             break;
                                         } else {
+                                            System.out.println("MC version does not match.");
                                             Files.delete(cache.toPath());
                                         }
                                     }
