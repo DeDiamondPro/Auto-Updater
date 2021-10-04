@@ -24,7 +24,8 @@ public class ModUpdater {
     public static final Pattern githubPattern = Pattern.compile("(https://)?(github\\.com/)?(?<user>[\\w-]{0,39})(/)(?<repo>[\\w-]{0,40})(.*)");
     private static final HashMap<String, File> modFiles = new HashMap<>();
     private static final HashMap<String, File> cachedFiles = new HashMap<>();
-    private static boolean hasShutdownHook = false;
+    public static final HashMap<String, String> tags = new HashMap<>();
+    public static boolean hasShutdownHook = false;
 
     public static void updateMods() {
         Config.load();
@@ -99,6 +100,7 @@ public class ModUpdater {
                                             } else {
                                                 System.out.println("Could not update " + data.id + ", This will be retried at shutdown.");
                                                 cachedFiles.put(data.id, cache);
+                                                tags.put(data.id, release.get("tag_name").getAsString());
                                                 if (!hasShutdownHook) {
                                                     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                                                         for (String id : cachedFiles.keySet()) {
@@ -109,18 +111,21 @@ public class ModUpdater {
                                                                 try {
                                                                     copyFile(source, dest);
                                                                     System.out.println("Updated successfully.");
+                                                                    Config.modData.get(id).tag = tags.get(id);
                                                                 } catch (IOException e) {
                                                                     e.printStackTrace();
                                                                 }
                                                             } else if (source != null && source.exists()) {
                                                                 System.out.println("Attempting to update " + id);
-                                                                if (source.renameTo(new File("mods", source.getName())))
+                                                                if (source.renameTo(new File("mods", source.getName()))) {
                                                                     System.out.println("Updated successfully.");
-                                                                else
+                                                                    Config.modData.get(id).tag = tags.get(id);
+                                                                } else
                                                                     System.out.println("Update failed.");
                                                             } else
                                                                 System.out.println("Update failed.");
                                                         }
+                                                        Config.save();
                                                     }));
                                                     hasShutdownHook = true;
                                                 }
