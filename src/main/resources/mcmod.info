@@ -5,8 +5,8 @@
     "description": "Auto Updater",
     "version": "${version}",
     "mcversion": "${mcversion}",
-    "url": "",
-    "updateUrl": "",
+    "url": "https://github.com/DeDiamondPro/Auto-Updater",
+    "updateUrl": "https://github.com/DeDiamondPro/Auto-Updater/releases",
     "authorList": [
       "DeDiamondPro"
     ],

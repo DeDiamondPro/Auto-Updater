@@ -12,6 +12,7 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 import java.awt.*;
 import java.io.IOException;
@@ -25,6 +26,7 @@ public class GuiConfig extends GuiScreen {
 
     private boolean repeatKeys;
     private final List<GuiTextField> textFields = new ArrayList<>();
+    private int scrollOffset =0;
 
     private final FontRenderer ft = Minecraft.getMinecraft().fontRendererObj;
 
@@ -59,27 +61,27 @@ public class GuiConfig extends GuiScreen {
 
         for (int i = 0; i < Config.modData.size(); i++) {
             ModData mod = (ModData) Config.modData.values().toArray()[i];
-            int y = i * 50 + 10;
+            int y = i * 50 + 10 + scrollOffset;
 
-            Gui.drawRect(5, y - 7, this.width - 5, y - 8, new Color(255, 255, 255).getRGB());
-            Gui.drawRect(5, y + 43, this.width - 5, y + 42, new Color(255, 255, 255).getRGB());
-            Gui.drawRect(5, y - 7, 6, y + 43, new Color(255, 255, 255).getRGB());
-            Gui.drawRect(this.width - 5, y - 7, this.width - 4, y + 43, new Color(255, 255, 255).getRGB());
+            Gui.drawRect(5, y - 7, this.width - 5, y - 8, new Color(220, 220, 220).getRGB());
+            Gui.drawRect(5, y + 43, this.width - 5, y + 42, new Color(220, 220, 220).getRGB());
+            Gui.drawRect(5, y - 7, 6, y + 43, new Color(220, 220, 220).getRGB());
+            Gui.drawRect(this.width - 5, y - 7, this.width - 4, y + 43, new Color(220, 220, 220).getRGB());
 
-            ft.drawStringWithShadow("Url:", 225, y, new Color(255, 255, 255).getRGB());
+            ft.drawStringWithShadow("Url:", 225, y, new Color(220, 220, 220).getRGB());
             textFields.get(i).drawTextBox();
             if (!ModUpdater.githubPattern.matcher(textFields.get(i).getText()).matches())
-                ft.drawStringWithShadow(EnumChatFormatting.RED + "Invalid GitHub url", 250, y + 25, new Color(255, 255, 255).getRGB());
+                ft.drawStringWithShadow(EnumChatFormatting.RED + "Invalid GitHub url", 250, y + 25, new Color(220, 220, 220).getRGB());
 
-            TextUtils.drawTextMaxLength(mod.name, 10, y + 12, new Color(255, 255, 255).getRGB(), true, 75);
+            TextUtils.drawTextMaxLength(mod.name, 10, y + 12, new Color(220, 220, 220).getRGB(), true, 75);
 
-            ft.drawStringWithShadow("Automatically Update:", 90, y, new Color(255, 255, 255).getRGB());
+            ft.drawStringWithShadow("Automatically Update:", 90, y, new Color(220, 220, 220).getRGB());
             if (mod.update)
                 RenderUtils.renderImage(finch, ft.getStringWidth("Automatically Update:") + 91, y - 4, 16, 16);
             else
                 RenderUtils.renderImage(cross, ft.getStringWidth("Automatically Update:") + 91, y - 4, 16, 16);
 
-            ft.drawStringWithShadow("Use Pre-Release:", 90, y + 25, new Color(255, 255, 255).getRGB());
+            ft.drawStringWithShadow("Use Pre-Release:", 90, y + 25, new Color(220, 220, 220).getRGB());
             if (mod.usePre)
                 RenderUtils.renderImage(finch, ft.getStringWidth("Automatically Update:") + 91, y + 21, 16, 16);
             else
@@ -88,11 +90,23 @@ public class GuiConfig extends GuiScreen {
     }
 
     @Override
+    public void handleMouseInput() throws IOException {
+        if (Mouse.getEventButton() == -1 && Mouse.getEventDWheel() != 0 && (scrollOffset + Mouse.getEventDWheel() / 5 <= 0 && Mouse.getEventDWheel() > 0 ||
+                scrollOffset + Config.modData.size() * 50 > this.height && Mouse.getEventDWheel() < 0)) {
+            scrollOffset += Mouse.getEventDWheel() / 5;
+            for (GuiTextField textField : textFields) {
+                textField.yPosition += Mouse.getEventDWheel() / 5;
+            }
+        }
+        super.handleMouseInput();
+    }
+
+    @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
         if (mouseX >= ft.getStringWidth("Automatically Update:") + 91 && mouseX <= ft.getStringWidth("Automatically Update:") + 107) {
             for (int i = 0; i < Config.modData.size(); i++) {
                 String modid = (String) Config.modData.keySet().toArray()[i];
-                int y = i * 50 + 10;
+                int y = i * 50 + 10 + scrollOffset;
                 if (mouseY >= y - 4 && mouseY <= y + 12) {
                     Config.modData.get(modid).update = !Config.modData.get(modid).update;
                 } else if (mouseY >= y + 21 && mouseY <= y + 37) {
