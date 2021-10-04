@@ -19,7 +19,7 @@ public class OnTick {
             guiToOpen = null;
         }
 
-        if (ModUpdater.hasShutdownHook && sent) {
+        if (ModUpdater.hasShutdownHook && !sent) {
             ChatComponentText component = new ChatComponentText(EnumChatFormatting.DARK_AQUA + "AutoUpdater > " + EnumChatFormatting.YELLOW + " Some mods " +
                     "have failed updating, there will be an attempt to update these" + " mods at shutdown. Affected mods:");
             for (String id : ModUpdater.tags.keySet()) {

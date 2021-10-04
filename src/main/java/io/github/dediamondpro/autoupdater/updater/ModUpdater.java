@@ -110,6 +110,8 @@ public class ModUpdater {
                                                                 System.out.println("Attempting to update " + id);
                                                                 try {
                                                                     copyFile(source, dest);
+                                                                    if (!source.delete())
+                                                                        System.out.println("Could not delete cache for mod: " + id);
                                                                     System.out.println("Updated successfully.");
                                                                     Config.modData.get(id).tag = tags.get(id);
                                                                 } catch (IOException e) {
