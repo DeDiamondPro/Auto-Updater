@@ -58,6 +58,9 @@ public class ModUpdater {
                         modFiles.put(modid, mod);
                     }
                 } catch (IOException ignored) {
+                } catch (IllegalStateException e){
+                    System.out.println("Error while trying to process " + mod.getName());
+                    e.printStackTrace();
                 }
             }
         }
