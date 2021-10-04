@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 
 public class ModUpdater {
 
-    private static final Pattern githubPattern = Pattern.compile("(https://)?(github\\.com/)?(?<user>[\\w-]{0,39})(/)(?<repo>[\\w-]{0,40})(.*)");
+    public static final Pattern githubPattern = Pattern.compile("(https://)?(github\\.com/)?(?<user>[\\w-]{0,39})(/)(?<repo>[\\w-]{0,40})(.*)");
     private static final HashMap<String, File> modFiles = new HashMap<>();
 
     public static void updateMods() {

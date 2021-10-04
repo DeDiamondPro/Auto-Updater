@@ -1,11 +1,16 @@
 package io.github.dediamondpro.autoupdater.config;
 
 import io.github.dediamondpro.autoupdater.data.ModData;
+import io.github.dediamondpro.autoupdater.updater.ModUpdater;
+import io.github.dediamondpro.autoupdater.utils.RenderUtils;
 import io.github.dediamondpro.autoupdater.utils.TextUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
@@ -15,8 +20,13 @@ import java.util.List;
 
 public class GuiConfig extends GuiScreen {
 
+    private final ResourceLocation cross = new ResourceLocation("autoupdater", "cross.png");
+    private final ResourceLocation finch = new ResourceLocation("autoupdater", "finch.png");
+
     private boolean repeatKeys;
     private final List<GuiTextField> textFields = new ArrayList<>();
+
+    private final FontRenderer ft = Minecraft.getMinecraft().fontRendererObj;
 
     @Override
     public boolean doesGuiPauseGame() {
@@ -25,17 +35,21 @@ public class GuiConfig extends GuiScreen {
 
     @Override
     public void initGui() {
-        if(textFields.size() != 0)
-            return;
-        repeatKeys = Keyboard.areRepeatEventsEnabled();
-        Keyboard.enableRepeatEvents(true);
-        for (int i = 0; i < Config.modData.size(); i++) {
-            ModData mod = (ModData) Config.modData.values().toArray()[i];
-            int y = i * 50 + 10;
-            textFields.add(new GuiTextField(i, Minecraft.getMinecraft().fontRendererObj, 100, y - 5, 200, 20));
-            textFields.get(i).setMaxStringLength(1000);
-            if (mod.url != null)
-                textFields.get(i).setText(mod.url);
+        if (textFields.size() != 0) {
+            for (GuiTextField textField : textFields) {
+                textField.width = Math.min(this.width - 253, 300);
+            }
+        } else {
+            repeatKeys = Keyboard.areRepeatEventsEnabled();
+            Keyboard.enableRepeatEvents(true);
+            for (int i = 0; i < Config.modData.size(); i++) {
+                ModData mod = (ModData) Config.modData.values().toArray()[i];
+                int y = i * 50 + 10;
+                textFields.add(new GuiTextField(i, ft, 245, y - 5, Math.min(this.width - 253, 300), 20));
+                textFields.get(i).setMaxStringLength(1000);
+                if (mod.url != null)
+                    textFields.get(i).setText(mod.url);
+            }
         }
     }
 
@@ -52,17 +66,43 @@ public class GuiConfig extends GuiScreen {
             Gui.drawRect(5, y - 7, 6, y + 43, new Color(255, 255, 255).getRGB());
             Gui.drawRect(this.width - 5, y - 7, this.width - 4, y + 43, new Color(255, 255, 255).getRGB());
 
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow("Url:", 80, y, new Color(255, 255, 255).getRGB());
+            ft.drawStringWithShadow("Url:", 225, y, new Color(255, 255, 255).getRGB());
             textFields.get(i).drawTextBox();
+            if (!ModUpdater.githubPattern.matcher(textFields.get(i).getText()).matches())
+                ft.drawStringWithShadow(EnumChatFormatting.RED + "Invalid GitHub url", 250, y + 25, new Color(255, 255, 255).getRGB());
 
-            TextUtils.drawTextMaxLength(mod.name, 10, y, new Color(255, 255, 255).getRGB(), true, 75);
+            TextUtils.drawTextMaxLength(mod.name, 10, y + 12, new Color(255, 255, 255).getRGB(), true, 75);
+
+            ft.drawStringWithShadow("Automatically Update:", 90, y, new Color(255, 255, 255).getRGB());
+            if (mod.update)
+                RenderUtils.renderImage(finch, ft.getStringWidth("Automatically Update:") + 91, y - 4, 16, 16);
+            else
+                RenderUtils.renderImage(cross, ft.getStringWidth("Automatically Update:") + 91, y - 4, 16, 16);
+
+            ft.drawStringWithShadow("Use Pre-Release:", 90, y + 25, new Color(255, 255, 255).getRGB());
+            if (mod.usePre)
+                RenderUtils.renderImage(finch, ft.getStringWidth("Automatically Update:") + 91, y + 21, 16, 16);
+            else
+                RenderUtils.renderImage(cross, ft.getStringWidth("Automatically Update:") + 91, y + 21, 16, 16);
         }
     }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        for (GuiTextField textField : textFields) {
-            textField.mouseClicked(mouseX, mouseY, mouseButton);
+        if (mouseX >= ft.getStringWidth("Automatically Update:") + 91 && mouseX <= ft.getStringWidth("Automatically Update:") + 107) {
+            for (int i = 0; i < Config.modData.size(); i++) {
+                String modid = (String) Config.modData.keySet().toArray()[i];
+                int y = i * 50 + 10;
+                if (mouseY >= y - 4 && mouseY <= y + 12) {
+                    Config.modData.get(modid).update = !Config.modData.get(modid).update;
+                } else if (mouseY >= y + 21 && mouseY <= y + 37) {
+                    Config.modData.get(modid).usePre = !Config.modData.get(modid).usePre;
+                }
+            }
+        } else {
+            for (GuiTextField textField : textFields) {
+                textField.mouseClicked(mouseX, mouseY, mouseButton);
+            }
         }
     }
 
@@ -73,6 +113,7 @@ public class GuiConfig extends GuiScreen {
             if (textField.isFocused()) {
                 textField.textboxKeyTyped(typedChar, keyCode);
                 closable = false;
+                break;
             }
         }
         if (closable)
