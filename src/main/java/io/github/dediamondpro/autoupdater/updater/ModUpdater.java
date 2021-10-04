@@ -41,7 +41,7 @@ public class ModUpdater {
             if (mod.isFile() && mod.getName().endsWith(".jar")) {
                 try {
                     JsonObject info = getMcMod(mod);
-                    if (info.has("modid") && info.has("name")) {
+                    if (info != null && info.has("modid") && info.has("name")) {
                         String modid = info.get("modid").getAsString();
                         ModData data = new ModData(modid, null, null, info.get("name").getAsString());
                         if (Config.modData.containsKey(modid))
@@ -58,7 +58,7 @@ public class ModUpdater {
                         modFiles.put(modid, mod);
                     }
                 } catch (IOException ignored) {
-                } catch (IllegalStateException e){
+                } catch (Exception e){
                     System.out.println("Error while trying to process " + mod.getName());
                     e.printStackTrace();
                 }
@@ -163,15 +163,20 @@ public class ModUpdater {
         JarFile jarFile = conn.getJarFile();
         InputStream in = jarFile.getInputStream(conn.getJarEntry());
         JsonParser parser = new JsonParser();
-        JsonArray array = parser.parse(new InputStreamReader(in)).getAsJsonArray();
+        JsonElement element = parser.parse(new InputStreamReader(in));
         jarFile.close();
         in.close();
-        return array.get(0).getAsJsonObject();
+        if (element.isJsonArray())
+            return element.getAsJsonArray().get(0).getAsJsonObject();
+        if (element.isJsonObject() && element.getAsJsonObject().has("modList"))
+            return element.getAsJsonObject().get("modList").getAsJsonArray().get(0).getAsJsonObject();
+        System.out.println(file.getName() + "has an unrecognized mcmod.info: " + element);
+        return null;
     }
 
     private static boolean validateMCVersion(File file) throws IOException {
         JsonObject info = getMcMod(file);
-        if (!info.has("mcversion") || info.get("mcversion").getAsString().equals(""))
+        if (info == null || !info.has("mcversion") || info.get("mcversion").getAsString().equals(""))
             return true;
         return info.get("mcversion").getAsString().equals(Loader.MC_VERSION);
     }
