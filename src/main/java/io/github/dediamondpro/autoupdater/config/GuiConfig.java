@@ -66,7 +66,7 @@ public class GuiConfig extends GuiScreen {
             Gui.drawRect(5, y - 7, this.width - 5, y - 8, new Color(220, 220, 220).getRGB());
             Gui.drawRect(5, y + 43, this.width - 5, y + 42, new Color(220, 220, 220).getRGB());
             Gui.drawRect(5, y - 7, 6, y + 43, new Color(220, 220, 220).getRGB());
-            Gui.drawRect(this.width - 5, y - 7, this.width - 4, y + 43, new Color(220, 220, 220).getRGB());
+            Gui.drawRect(this.width - 5, y - 8, this.width - 4, y + 43, new Color(220, 220, 220).getRGB());
 
             ft.drawStringWithShadow("Url:", 225, y, new Color(220, 220, 220).getRGB());
             textFields.get(i).drawTextBox();
