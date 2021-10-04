@@ -8,12 +8,8 @@ import io.github.dediamondpro.autoupdater.config.Config;
 import io.github.dediamondpro.autoupdater.data.ModData;
 import io.github.dediamondpro.autoupdater.utils.WebUtils;
 import net.minecraftforge.fml.common.Loader;
-import org.lwjgl.Sys;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -27,6 +23,8 @@ public class ModUpdater {
 
     public static final Pattern githubPattern = Pattern.compile("(https://)?(github\\.com/)?(?<user>[\\w-]{0,39})(/)(?<repo>[\\w-]{0,40})(.*)");
     private static final HashMap<String, File> modFiles = new HashMap<>();
+    private static final HashMap<String, File> cachedFiles = new HashMap<>();
+    private static boolean hasShutdownHook = false;
 
     public static void updateMods() {
         Config.load();
@@ -98,8 +96,35 @@ public class ModUpdater {
                                                     System.out.println("Could not delete cache for mod: " + data.id);
                                                 Config.modData.get(data.id).tag = release.get("tag_name").getAsString();
                                                 System.out.println("Succesfully updated " + data.id + " to " + release.get("tag_name").getAsString());
-                                            } else
-                                                System.out.println("Could not update " + data.id + ".");
+                                            } else {
+                                                System.out.println("Could not update " + data.id + ", This will be retried at shutdown.");
+                                                cachedFiles.put(data.id, cache);
+                                                if (!hasShutdownHook) {
+                                                    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                                                        for (String id : cachedFiles.keySet()) {
+                                                            File source = cachedFiles.get(id);
+                                                            File dest = modFiles.get(id);
+                                                            if (source != null && source.exists() && dest != null && dest.exists()) {
+                                                                System.out.println("Attempting to update " + id);
+                                                                try {
+                                                                    copyFile(source, dest);
+                                                                    System.out.println("Updated successfully.");
+                                                                } catch (IOException e) {
+                                                                    e.printStackTrace();
+                                                                }
+                                                            } else if (source != null && source.exists()) {
+                                                                System.out.println("Attempting to update " + id);
+                                                                if (source.renameTo(new File("mods", source.getName())))
+                                                                    System.out.println("Updated successfully.");
+                                                                else
+                                                                    System.out.println("Update failed.");
+                                                            } else
+                                                                System.out.println("Update failed.");
+                                                        }
+                                                    }));
+                                                    hasShutdownHook = true;
+                                                }
+                                            }
                                             done = true;
                                             break;
                                         } else {
@@ -139,5 +164,25 @@ public class ModUpdater {
         if (!info.has("mcversion") || info.get("mcversion").getAsString().equals(""))
             return true;
         return info.get("mcversion").getAsString().equals(Loader.MC_VERSION);
+    }
+
+    /**
+     * Adapted from SkytilsMod and Wynntils under GNU Affero General Public License v3.0
+     * Modified to be more compact
+     * https://github.com/Skytils/SkytilsMod/blob/0.x/LICENSE
+     * https://github.com/Wynntils/Wynntils/blob/development/LICENSE
+     *
+     * @param sourceFile The source file
+     * @param destFile   Where it will be
+     * @author Wynntils
+     * Copy a file from a location to another
+     */
+    public static void copyFile(File sourceFile, File destFile) throws IOException {
+        try (InputStream source = new FileInputStream(sourceFile); OutputStream dest = new FileOutputStream(destFile)) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = source.read(buffer)) > 0)
+                dest.write(buffer, 0, length);
+        }
     }
 }
