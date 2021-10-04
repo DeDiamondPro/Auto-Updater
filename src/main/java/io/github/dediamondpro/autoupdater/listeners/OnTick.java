@@ -19,11 +19,11 @@ public class OnTick {
             guiToOpen = null;
         }
 
-        if (ModUpdater.hasShutdownHook && !sent) {
+        if (Minecraft.getMinecraft().theWorld != null && event.phase == TickEvent.Phase.START && ModUpdater.hasShutdownHook && !sent) {
             ChatComponentText component = new ChatComponentText(EnumChatFormatting.DARK_AQUA + "AutoUpdater > " + EnumChatFormatting.YELLOW + " Some mods " +
-                    "have failed updating, there will be an attempt to update these" + " mods at shutdown. Affected mods:");
+                    "have failed to update, there will be an attempt to update these mods at shutdown. Affected mods:");
             for (String id : ModUpdater.tags.keySet()) {
-                component.appendSibling(new ChatComponentText("\n" + EnumChatFormatting.YELLOW + "- " + id + " to " + ModUpdater.tags.get(id)));
+                component.appendSibling(new ChatComponentText("\n" + EnumChatFormatting.YELLOW + "- " + id + " ➔ " + ModUpdater.tags.get(id)));
             }
             Minecraft.getMinecraft().thePlayer.addChatMessage(component);
             sent = true;
