@@ -4,7 +4,7 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "6f53277"
 }
 
-version = "1.0"
+version = "1.0.1"
 group = "io.github.dediamondpro"
 archivesBaseName = "AutoUpdater"
 
