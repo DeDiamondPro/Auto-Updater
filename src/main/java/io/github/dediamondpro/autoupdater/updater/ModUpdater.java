@@ -95,7 +95,7 @@ public class ModUpdater {
                                                 if (!cache.delete())
                                                     System.out.println("Could not delete cache for mod: " + data.id);
                                                 Config.modData.get(data.id).tag = release.get("tag_name").getAsString();
-                                                System.out.println("Succesfully updated " + data.id + " to " + release.get("tag_name").getAsString());
+                                                System.out.println("Successfully updated " + data.id + " to " + release.get("tag_name").getAsString());
                                             } else {
                                                 System.out.println("Could not update " + data.id + ", This will be retried at shutdown.");
                                                 cachedFiles.put(data.id, cache);
