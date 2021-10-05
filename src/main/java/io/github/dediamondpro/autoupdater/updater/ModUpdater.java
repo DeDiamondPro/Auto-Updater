@@ -27,12 +27,10 @@ public class ModUpdater {
     public static boolean hasShutdownHook = false;
 
     public static void updateMods() {
-        /*Config.load();
+        Config.load();
         updateConfig();
         update();
-        Config.save();*/
-        SkyClientUpdater.fetchRepo();
-        System.out.println(SkyClientUpdater.modsList.toString());
+        Config.save();
     }
 
     private static void updateConfig() {
@@ -76,62 +74,66 @@ public class ModUpdater {
 
     private static void update() {
         for (ModData data : Config.modData.values()) {
-            if (data.url != null && data.update) {
-                Matcher githubMatcher = githubPattern.matcher(data.url);
-                if (githubMatcher.matches()) {
-                    System.out.println("Fetching https://api.github.com/repos/" + githubMatcher.group("user")
-                            + "/" + githubMatcher.group("repo") + "/releases");
-                    JsonElement json = WebUtils.getRequest("https://api.github.com/repos/" + githubMatcher.group("user")
-                            + "/" + githubMatcher.group("repo") + "/releases");
-                    if (json != null) {
-                        JsonArray releases = json.getAsJsonArray();
-                        try {
-                            for (JsonElement element1 : releases) {
-                                boolean done = false;
-                                JsonObject release = element1.getAsJsonObject();
-                                if ((data.tag == null || !data.tag.equals(release.get("tag_name").getAsString())) && release.has("assets")) {
-                                    for (JsonElement element2 : release.getAsJsonObject().getAsJsonArray("assets")) {
-                                        JsonObject asset = element2.getAsJsonObject();
-                                        String downloadUrl = asset.get("browser_download_url").getAsString();
-                                        String name = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1);
-                                        File cacheDir = new File("config/AutoUpdater/cache");
-                                        if (!cacheDir.exists() && !cacheDir.mkdir())
-                                            throw new IllegalStateException("Could not create cache folder");
-                                        File cache = new File(cacheDir, name);
-                                        System.out.println("Downloading " + downloadUrl);
-                                        WebUtils.downloadFile(downloadUrl, cache);
-                                        if (UpdateUtils.validateMCVersion(cache)) {
-                                            if (modFiles.get(data.id).delete()) {
-                                                Files.copy(cache.toPath(), modFiles.get(data.id).toPath(), StandardCopyOption.REPLACE_EXISTING);
-                                                if (!cache.delete())
-                                                    System.out.println("Could not delete cache for mod: " + data.id);
-                                                Config.modData.get(data.id).tag = release.get("tag_name").getAsString();
-                                                System.out.println("Successfully updated " + data.id + " to " + release.get("tag_name").getAsString());
-                                            } else {
-                                                System.out.println("Could not update " + data.id + ", This will be retried at shutdown.");
-                                                cachedFiles.put(data.id, cache);
-                                                tags.put(data.id, release.get("tag_name").getAsString());
-                                                if (!hasShutdownHook) {
-                                                    UpdateUtils.addShutdownHook();
-                                                    hasShutdownHook = true;
-                                                }
-                                            }
-                                            done = true;
-                                            break;
-                                        } else {
-                                            System.out.println("MC version does not match.");
-                                            Files.delete(cache.toPath());
+            if (data.url != null && data.update && !data.useSkyClient) {
+                updateMod(data);
+            }
+        }
+    }
+
+    private static void updateMod(ModData data){
+        Matcher githubMatcher = githubPattern.matcher(data.url);
+        if (githubMatcher.matches()) {
+            System.out.println("Fetching https://api.github.com/repos/" + githubMatcher.group("user")
+                    + "/" + githubMatcher.group("repo") + "/releases");
+            JsonElement json = WebUtils.getRequest("https://api.github.com/repos/" + githubMatcher.group("user")
+                    + "/" + githubMatcher.group("repo") + "/releases");
+            if (json != null) {
+                JsonArray releases = json.getAsJsonArray();
+                try {
+                    for (JsonElement element1 : releases) {
+                        boolean done = false;
+                        JsonObject release = element1.getAsJsonObject();
+                        if ((data.tag == null || !data.tag.equals(release.get("tag_name").getAsString())) && release.has("assets")) {
+                            for (JsonElement element2 : release.getAsJsonObject().getAsJsonArray("assets")) {
+                                JsonObject asset = element2.getAsJsonObject();
+                                String downloadUrl = asset.get("browser_download_url").getAsString();
+                                String name = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1);
+                                File cacheDir = new File("config/AutoUpdater/cache");
+                                if (!cacheDir.exists() && !cacheDir.mkdir())
+                                    throw new IllegalStateException("Could not create cache folder");
+                                File cache = new File(cacheDir, name);
+                                System.out.println("Downloading " + downloadUrl);
+                                WebUtils.downloadFile(downloadUrl, cache);
+                                if (UpdateUtils.validateMCVersion(cache)) {
+                                    if (modFiles.get(data.id).delete()) {
+                                        Files.copy(cache.toPath(), modFiles.get(data.id).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                        if (!cache.delete())
+                                            System.out.println("Could not delete cache for mod: " + data.id);
+                                        Config.modData.get(data.id).tag = release.get("tag_name").getAsString();
+                                        System.out.println("Successfully updated " + data.id + " to " + release.get("tag_name").getAsString());
+                                    } else {
+                                        System.out.println("Could not update " + data.id + ", This will be retried at shutdown.");
+                                        cachedFiles.put(data.id, cache);
+                                        tags.put(data.id, release.get("tag_name").getAsString());
+                                        if (!hasShutdownHook) {
+                                            UpdateUtils.addShutdownHook();
+                                            hasShutdownHook = true;
                                         }
                                     }
-                                } else if (data.tag.equals(release.get("tag_name").getAsString()))
+                                    done = true;
                                     break;
-                                if (done)
-                                    break;
+                                } else {
+                                    System.out.println("MC version does not match.");
+                                    Files.delete(cache.toPath());
+                                }
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        } else if (data.tag.equals(release.get("tag_name").getAsString()))
+                            break;
+                        if (done)
+                            break;
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }
