@@ -7,11 +7,11 @@ public class ModData {
     public String name;
     public boolean update;
     public boolean usePre;
+    public boolean useSkyClient = false;
+    public String skyClientVersion;
 
-    public ModData(String id, String tag, String url, String name) {
+    public ModData(String id, String name) {
         this.id = id;
-        this.tag = tag;
-        this.url = url;
         this.name = name;
     }
 }
