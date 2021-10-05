@@ -2,6 +2,7 @@ package io.github.dediamondpro.autoupdater.config;
 
 import io.github.dediamondpro.autoupdater.data.ModData;
 import io.github.dediamondpro.autoupdater.updater.ModUpdater;
+import io.github.dediamondpro.autoupdater.updater.SkyClientUpdater;
 import io.github.dediamondpro.autoupdater.utils.RenderUtils;
 import io.github.dediamondpro.autoupdater.utils.TextUtils;
 import net.minecraft.client.Minecraft;
@@ -26,7 +27,7 @@ public class GuiConfig extends GuiScreen {
 
     private boolean repeatKeys;
     private final List<GuiTextField> textFields = new ArrayList<>();
-    private int scrollOffset =0;
+    private int scrollOffset = 0;
 
     private final FontRenderer ft = Minecraft.getMinecraft().fontRendererObj;
 
@@ -68,11 +69,6 @@ public class GuiConfig extends GuiScreen {
             Gui.drawRect(5, y - 7, 6, y + 43, new Color(220, 220, 220).getRGB());
             Gui.drawRect(this.width - 5, y - 8, this.width - 4, y + 43, new Color(220, 220, 220).getRGB());
 
-            ft.drawStringWithShadow("Url:", 225, y, new Color(220, 220, 220).getRGB());
-            textFields.get(i).drawTextBox();
-            if (!ModUpdater.githubPattern.matcher(textFields.get(i).getText()).matches())
-                ft.drawStringWithShadow(EnumChatFormatting.RED + "Invalid GitHub url", 250, y + 25, new Color(220, 220, 220).getRGB());
-
             TextUtils.drawTextMaxLength(mod.name, 10, y + 12, new Color(220, 220, 220).getRGB(), true, 75);
 
             ft.drawStringWithShadow("Automatically Update:", 90, y, new Color(220, 220, 220).getRGB());
@@ -86,6 +82,21 @@ public class GuiConfig extends GuiScreen {
                 RenderUtils.renderImage(finch, ft.getStringWidth("Automatically Update:") + 91, y + 21, 16, 16);
             else
                 RenderUtils.renderImage(cross, ft.getStringWidth("Automatically Update:") + 91, y + 21, 16, 16);
+
+            ft.drawStringWithShadow("Url:", 225, y, new Color(220, 220, 220).getRGB());
+            textFields.get(i).drawTextBox();
+            if (!ModUpdater.githubPattern.matcher(textFields.get(i).getText()).matches() && (!SkyClientUpdater.modsList.containsKey(mod.id) || !mod.useSkyClient))
+                ft.drawStringWithShadow(EnumChatFormatting.RED + "Invalid GitHub url",
+                        245 + Math.min(this.width - 253, 300) - ft.getStringWidth("Invalid GitHub url")
+                        , y + 25, new Color(220, 220, 220).getRGB());
+
+            if (SkyClientUpdater.modsList.containsKey(mod.id)) {
+                ft.drawStringWithShadow("Use SkyClient repo:", 225, y + 25, new Color(220, 220, 220).getRGB());
+                if (mod.useSkyClient)
+                    RenderUtils.renderImage(finch, ft.getStringWidth("Use SkyClient repo:") + 226, y + 21, 16, 16);
+                else
+                    RenderUtils.renderImage(cross, ft.getStringWidth("Use SkyClient repo:") + 226, y + 21, 16, 16);
+            }
         }
     }
 
@@ -111,6 +122,14 @@ public class GuiConfig extends GuiScreen {
                     Config.modData.get(modid).update = !Config.modData.get(modid).update;
                 } else if (mouseY >= y + 21 && mouseY <= y + 37) {
                     Config.modData.get(modid).usePre = !Config.modData.get(modid).usePre;
+                }
+            }
+        } else if (mouseX >= ft.getStringWidth("Use SkyClient repo:") + 226 && mouseX <= ft.getStringWidth("Use SkyClient repo:") + 242) {
+            for (int i = 0; i < Config.modData.size(); i++) {
+                String modid = (String) Config.modData.keySet().toArray()[i];
+                int y = i * 50 + 10 + scrollOffset;
+                if (mouseY >= y + 21 && mouseY <= y + 37) {
+                    Config.modData.get(modid).useSkyClient = !Config.modData.get(modid).useSkyClient;
                 }
             }
         } else {

@@ -13,6 +13,7 @@ public class SkyClientUpdater {
     public static HashMap<String, URL> modsList = new HashMap<>();
 
     public static void fetchRepo() {
+        System.out.println("Fetching SkyClient repo");
         JsonElement data = WebUtils.getRequest("https://raw.githubusercontent.com/nacrt/SkyblockClient-REPO/main/files/mods.json");
         if (data == null || !data.isJsonArray())
             return;

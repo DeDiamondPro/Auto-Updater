@@ -29,6 +29,7 @@ public class ModUpdater {
     public static void updateMods() {
         Config.load();
         updateConfig();
+        SkyClientUpdater.fetchRepo();
         update();
         Config.save();
     }
