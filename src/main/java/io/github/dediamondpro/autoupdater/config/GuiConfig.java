@@ -35,6 +35,7 @@ public class GuiConfig extends GuiScreen {
     private int scrollOffset = 0;
     private String alertString;
     private ModData toUpdate;
+    private boolean githubWarning;
 
     private final FontRenderer ft = Minecraft.getMinecraft().fontRendererObj;
 
@@ -106,35 +107,59 @@ public class GuiConfig extends GuiScreen {
             }
         }
 
-        if (alertString != null) {
+        if (alertString != null || githubWarning) {
             Gui.drawRect(this.width / 2 - 200, this.height / 2 - 125, this.width / 2 + 200, this.height / 2 + 125,
                     new Color(30, 30, 30).getRGB());
 
             TextUtils.drawTextScaleCentered("WARNING", this.width / 2f, this.height / 2f - 110, new Color(255, 0, 0).getRGB(),
                     false, 5);
-            TextUtils.drawTextScaleCentered(toUpdate.name + " will be updated from", this.width / 2f, this.height / 2f - 60,
-                    new Color(255, 255, 255).getRGB(), false, 1.3f);
-            TextUtils.drawTextScaleCentered(Config.modData.get(toUpdate.id).modVersion + " (" + ModUpdater.modFiles.get(toUpdate.id).getName() + ")",
-                    this.width / 2f, this.height / 2f - 45, new Color(255, 255, 255).getRGB(), false, 1.3f);
-            TextUtils.drawTextScaleCentered("to", this.width / 2f, this.height / 2f - 30,
-                    new Color(255, 255, 255).getRGB(), false, 1.3f);
-            TextUtils.drawTextScaleCentered(alertString, this.width / 2f, this.height / 2f - 15,
-                    new Color(255, 255, 255).getRGB(), false, 1.3f);
-            TextUtils.drawTextCentered("If this version is older then the version you currently have installed", this.width / 2f, this.height / 2f + 10,
-                    new Color(255, 255, 255).getRGB(), false);
-            TextUtils.drawTextCentered("please confirm that you have the right setting set for pre-releases.", this.width / 2f, this.height / 2f + 20,
-                    new Color(255, 255, 255).getRGB(), false);
-            TextUtils.drawTextCentered("If this is the case the latest release on GitHub is probably outdated,", this.width / 2f, this.height / 2f + 30,
-                    new Color(255, 255, 255).getRGB(), false);
-            TextUtils.drawTextCentered("you can ask the developer of the mod to update the GitHub or use the", this.width / 2f, this.height / 2f + 40,
-                    new Color(255, 255, 255).getRGB(), false);
-            TextUtils.drawTextCentered("SkyClient repo if available. (If the version I want to download is the", this.width / 2f, this.height / 2f + 50,
-                    new Color(255, 255, 255).getRGB(), false);
-            TextUtils.drawTextCentered("same version or a newer version then it is fine).", this.width / 2f, this.height / 2f + 60,
-                    new Color(255, 255, 255).getRGB(), false);
 
-            Gui.drawRect(this.width / 2 - 150, this.height / 2 + 105 , this.width / 2 - 100, this.height / 2 + 120,
-                    new Color(255, 0, 0).getRGB());
+            if (alertString != null) {
+                TextUtils.drawTextScaleCentered(toUpdate.name + " will be updated from", this.width / 2f, this.height / 2f - 53,
+                        new Color(255, 255, 255).getRGB(), false, 1.3f);
+                TextUtils.drawTextScaleCentered(Config.modData.get(toUpdate.id).modVersion + " (" + ModUpdater.modFiles.get(toUpdate.id).getName() + ")",
+                        this.width / 2f, this.height / 2f - 38, new Color(255, 255, 255).getRGB(), false, 1.3f);
+                TextUtils.drawTextScaleCentered("to", this.width / 2f, this.height / 2f - 23,
+                        new Color(255, 255, 255).getRGB(), false, 1.3f);
+                TextUtils.drawTextScaleCentered(alertString, this.width / 2f, this.height / 2f - 9,
+                        new Color(255, 255, 255).getRGB(), false, 1.3f);
+                TextUtils.drawTextCentered("If this version is older then the version you currently have installed", this.width / 2f, this.height / 2f + 20,
+                        new Color(255, 255, 255).getRGB(), false);
+                TextUtils.drawTextCentered("please confirm that you have the right setting set for pre-releases.", this.width / 2f, this.height / 2f + 30,
+                        new Color(255, 255, 255).getRGB(), false);
+                TextUtils.drawTextCentered("If this is the case the latest release on GitHub is probably outdated,", this.width / 2f, this.height / 2f + 40,
+                        new Color(255, 255, 255).getRGB(), false);
+                TextUtils.drawTextCentered("you can ask the developer of the mod to update the GitHub or use the", this.width / 2f, this.height / 2f + 50,
+                        new Color(255, 255, 255).getRGB(), false);
+                TextUtils.drawTextCentered("SkyClient repo if available. (If the version I want to download is the", this.width / 2f, this.height / 2f + 60,
+                        new Color(255, 255, 255).getRGB(), false);
+                TextUtils.drawTextCentered("same version or a newer version then it is fine).", this.width / 2f, this.height / 2f + 70,
+                        new Color(255, 255, 255).getRGB(), false);
+
+                Gui.drawRect(this.width / 2 - 100, this.height / 2 + 100, this.width / 2 - 50, this.height / 2 + 115,
+                        new Color(230, 0, 0).getRGB());
+                TextUtils.drawTextCentered("Cancel", this.width / 2f - 75, this.height / 2f + 103, new Color(255, 255, 255).getRGB(), false);
+
+                Gui.drawRect(this.width / 2 + 50, this.height / 2 + 100, this.width / 2 + 100, this.height / 2 + 115,
+                        new Color(0, 230, 0).getRGB());
+                TextUtils.drawTextCentered("Continue", this.width / 2f + 75, this.height / 2f + 103, new Color(255, 255, 255).getRGB(), false);
+            } else {
+                TextUtils.drawTextScaleCentered(toUpdate.name + " has an invalid GitHub url", this.width / 2f, this.height / 2f - 33,
+                        new Color(255, 255, 255).getRGB(), false, 1.5f);
+
+                TextUtils.drawTextCentered("To fix this please set the \"url\" field to a valid GitHub url or,", this.width / 2f
+                        , this.height / 2f + 15, new Color(255, 255, 255).getRGB(), false);
+                TextUtils.drawTextCentered("if available select the use SkyClient repo option.", this.width / 2f
+                        , this.height / 2f + 25, new Color(255, 255, 255).getRGB(), false);
+                TextUtils.drawTextCentered("An example of a valid GitHub url is:", this.width / 2f
+                        , this.height / 2f + 35, new Color(255, 255, 255).getRGB(), false);
+                TextUtils.drawTextCentered("\"https://github.com/DeDiamondPro/Auto-Updater\"", this.width / 2f
+                        , this.height / 2f + 45, new Color(255, 255, 255).getRGB(), false);
+
+                Gui.drawRect(this.width / 2 - 50, this.height / 2 + 100, this.width / 2 + 50, this.height / 2 + 115,
+                        new Color(230, 0, 0).getRGB());
+                TextUtils.drawTextCentered("Close", this.width / 2f, this.height / 2f + 103, new Color(255, 255, 255).getRGB(), false);
+            }
         }
     }
 
@@ -152,7 +177,7 @@ public class GuiConfig extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        if (alertString == null) {
+        if (alertString == null && !githubWarning) {
             for (GuiTextField textField : textFields) {
                 textField.mouseClicked(mouseX, mouseY, mouseButton);
             }
@@ -181,6 +206,17 @@ public class GuiConfig extends GuiScreen {
                     }
                 }
             }
+        } else if (alertString != null) {
+            if (mouseX >= this.width / 2 - 100 && mouseX <= this.width / 2 - 50 && mouseY >= this.height / 2 + 100 && mouseY <= this.height / 2 + 115) {
+                alertString = null;
+            } else if (mouseX >= this.width / 2 + 50 && mouseX <= this.width / 2 + 100 && mouseY >= this.height / 2 + 100 && mouseY <= this.height / 2 + 115) {
+                alertString = null;
+                Config.modData.get(toUpdate.id).update = true;
+            }
+        } else {
+            if (mouseX >= this.width / 2 - 50 && mouseX <= this.width / 2 + 50 && mouseY >= this.height / 2 + 100 && mouseY <= this.height / 2 + 115) {
+                githubWarning = false;
+            }
         }
     }
 
@@ -196,6 +232,8 @@ public class GuiConfig extends GuiScreen {
         }
         if (alertString != null && keyCode == 1)
             alertString = null;
+        else if (githubWarning && keyCode == 1)
+            githubWarning = false;
         else if (closable)
             super.keyTyped(typedChar, keyCode);
     }
@@ -235,7 +273,7 @@ public class GuiConfig extends GuiScreen {
                                 release.has("tag_name") && release.has("assets") && release.get("assets").isJsonArray()) {
                             String tag = release.get("tag_name").getAsString();
                             String fileName = release.get("assets").getAsJsonArray().get(0).getAsJsonObject().get("name").getAsString();
-                            if (tag.equals(data.modVersion) && fileName.equals(ModUpdater.modFiles.get(toUpdate.id).getName())) {
+                            if (tag.equals(data.modVersion) || fileName.equals(ModUpdater.modFiles.get(toUpdate.id).getName())) {
                                 Config.modData.get(data.id).update = true;
                                 return null;
                             }
@@ -243,7 +281,8 @@ public class GuiConfig extends GuiScreen {
                         }
                     }
                 }
-            }
+            } else
+                githubWarning = true;
         }
         return null;
     }
