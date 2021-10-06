@@ -37,11 +37,11 @@ public class ModUpdater {
     private static void updateConfig() {
         HashMap<String, ModData> newData = new HashMap<>();
         File modDir = new File("mods");
-        if(!modDir.exists() || !modDir.isDirectory() || modDir.listFiles() == null)
+        if (!modDir.exists() || !modDir.isDirectory() || modDir.listFiles() == null)
             return;
         List<File> allMods = Arrays.asList(modDir.listFiles());
         File versionModDir = new File("mods/" + Loader.MC_VERSION);
-        if(versionModDir.exists() && versionModDir.isDirectory() && versionModDir.listFiles() != null)
+        if (versionModDir.exists() && versionModDir.isDirectory() && versionModDir.listFiles() != null)
             allMods.addAll(Arrays.asList(versionModDir.listFiles()));
         for (File mod : allMods) {
             if (mod.isFile() && mod.getName().endsWith(".jar")) {
@@ -60,11 +60,13 @@ public class ModUpdater {
                             else if (info.has("url") && githubPattern.matcher(info.get("url").getAsString()).matches())
                                 data.url = info.get("url").getAsString();
                         }
+                        if (info.has("version"))
+                            data.modVersion = info.get("version").getAsString();
                         newData.put(modid, data);
                         modFiles.put(modid, mod);
                     }
                 } catch (IOException ignored) {
-                } catch (Exception e){
+                } catch (Exception e) {
                     System.out.println("Error while trying to process " + mod.getName());
                     e.printStackTrace();
                 }
@@ -81,20 +83,21 @@ public class ModUpdater {
         }
     }
 
-    private static void updateMod(ModData data){
+    private static void updateMod(ModData data) {
         Matcher githubMatcher = githubPattern.matcher(data.url);
         if (githubMatcher.matches()) {
             System.out.println("Fetching https://api.github.com/repos/" + githubMatcher.group("user")
                     + "/" + githubMatcher.group("repo") + "/releases");
             JsonElement json = WebUtils.getRequest("https://api.github.com/repos/" + githubMatcher.group("user")
                     + "/" + githubMatcher.group("repo") + "/releases");
-            if (json != null) {
+            if (json != null && json.isJsonArray()) {
                 JsonArray releases = json.getAsJsonArray();
                 try {
                     for (JsonElement element1 : releases) {
                         boolean done = false;
                         JsonObject release = element1.getAsJsonObject();
-                        if ((data.tag == null || !data.tag.equals(release.get("tag_name").getAsString())) && release.has("assets")) {
+                        if ((data.tag == null || !data.tag.equals(release.get("tag_name").getAsString())) && release.has("assets") &&
+                                (!release.has("prerelease") || !release.get("prerelease").getAsBoolean() || data.usePre)) {
                             for (JsonElement element2 : release.getAsJsonObject().getAsJsonArray("assets")) {
                                 JsonObject asset = element2.getAsJsonObject();
                                 String downloadUrl = asset.get("browser_download_url").getAsString();

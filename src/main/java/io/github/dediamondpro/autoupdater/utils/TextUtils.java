@@ -36,7 +36,21 @@ public class TextUtils {
         }
     }
 
-    public static void drawTextCentered(String text, float x, float y, int color, boolean shadow){
-        mc.fontRendererObj.drawString(text, x - mc.fontRendererObj.getStringWidth(text)/ 2f, y, color, shadow);
+    public static void drawTextCentered(String text, float x, float y, int color, boolean shadow) {
+        mc.fontRendererObj.drawString(text, x - mc.fontRendererObj.getStringWidth(text) / 2f, y, color, shadow);
+    }
+
+    public static void drawTextScale(String text, float x, float y, int color, boolean shadow, float scale) {
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(scale, scale, 1);
+        mc.fontRendererObj.drawString(text, x * (1 / scale), y * (1 / scale), color, shadow);
+        GlStateManager.popMatrix();
+    }
+
+    public static void drawTextScaleCentered(String text, float x, float y, int color, boolean shadow, float scale) {
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(scale, scale, 1);
+        mc.fontRendererObj.drawString(text, (x - mc.fontRendererObj.getStringWidth(text) * scale / 2f) * (1 / scale), y * (1 / scale), color, shadow);
+        GlStateManager.popMatrix();
     }
 }

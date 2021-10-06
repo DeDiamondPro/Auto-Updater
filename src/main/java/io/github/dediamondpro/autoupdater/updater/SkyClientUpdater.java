@@ -5,12 +5,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.github.dediamondpro.autoupdater.utils.WebUtils;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 
 public class SkyClientUpdater {
-    public static HashMap<String, URL> modsList = new HashMap<>();
+    public static HashMap<String, String> modsList = new HashMap<>();
 
     public static void fetchRepo() {
         System.out.println("Fetching SkyClient repo");
@@ -22,18 +20,10 @@ public class SkyClientUpdater {
             if (element.isJsonObject()) {
                 JsonObject mod = element.getAsJsonObject();
                 if (mod.has("forge_id") && mod.has("url")) {
-                    try {
-                        modsList.put(mod.get("forge_id").getAsString(), new URL(mod.get("url").getAsString()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else if (mod.has("forge_id") && mod.has("file")){
-                    try {
-                        modsList.put(mod.get("forge_id").getAsString(),
-                                new URL("https://github.com/nacrt/SkyblockClient-REPO/raw/main/files/mods/" + mod.get("file").getAsString()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    modsList.put(mod.get("forge_id").getAsString(), mod.get("url").getAsString());
+                } else if (mod.has("forge_id") && mod.has("file")) {
+                    modsList.put(mod.get("forge_id").getAsString(), "https://github.com/nacrt/SkyblockClient-REPO/raw/main/files/mods/"
+                            + mod.get("file").getAsString());
                 }
             }
         }

@@ -5,9 +5,10 @@ public class ModData {
     public String tag;
     public String url;
     public String name;
+    public String modVersion;
     public boolean update;
-    public boolean usePre;
-    public boolean useSkyClient = false;
+    public boolean usePre = true;
+    public boolean useSkyClient;
     public String skyClientVersion;
 
     public ModData(String id, String name) {
