@@ -28,7 +28,7 @@
  You can also configure the updater to use pre-releases of mods if you want it to.
  Screenshot of config menu:
  
- ![Config Menu](https://i.imgur.com/3aTgBAv.png)
+ ![Config Menu](https://media.discordapp.net/attachments/832652653292027904/895350070722068591/unknown.png?width=1202&height=676)
  
  ## Technical details
  
