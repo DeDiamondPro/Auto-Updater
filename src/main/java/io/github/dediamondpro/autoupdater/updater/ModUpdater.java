@@ -79,6 +79,8 @@ public class ModUpdater {
         for (ModData data : Config.modData.values()) {
             if (data.url != null && data.update && !data.useSkyClient) {
                 updateMod(data);
+            } else if (data.useSkyClient && SkyClientUpdater.modsList.containsKey(data.id)){
+                SkyClientUpdater.updateSkyClient(data);
             }
         }
     }

@@ -280,7 +280,8 @@ public class GuiConfig extends GuiScreen {
                             return tag + " (" + fileName + ")";
                         }
                     }
-                }
+                } else
+                    Config.modData.get(data.id).update = true;
             } else
                 githubWarning = true;
         }

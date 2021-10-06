@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -36,15 +37,11 @@ public class WebUtils {
         return null;
     }
 
-    public static void downloadFile(String url, File location) {
-        try {
-            URLConnection con = new URL(url).openConnection();
-            con.setRequestProperty("User-Agent", "Auto-Updater");
-            InputStream in = con.getInputStream();
-            Files.copy(in, location.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void downloadFile(String url, File location) throws IOException {
+        URLConnection con = new URL(url).openConnection();
+        con.setRequestProperty("User-Agent", "Auto-Updater");
+        InputStream in = con.getInputStream();
+        Files.copy(in, location.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        in.close();
     }
 }

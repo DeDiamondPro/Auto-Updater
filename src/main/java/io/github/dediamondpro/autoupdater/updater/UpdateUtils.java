@@ -33,6 +33,8 @@ public class UpdateUtils {
 
     public static boolean validateMCVersion(File file) throws IOException {
         JsonObject info = getMcMod(file);
+        if(info != null && info.has("version") && info.has("modid") && Config.modData.containsKey(info.get("modid").getAsString()))
+            Config.modData.get(info.get("modid").getAsString()).modVersion = info.get("version").getAsString();
         if (info == null || !info.has("mcversion") || info.get("mcversion").getAsString().equals(""))
             return true;
         return info.get("mcversion").getAsString().equals(Loader.MC_VERSION);
@@ -41,8 +43,8 @@ public class UpdateUtils {
     public static void addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             for (String id : ModUpdater.cachedFiles.keySet()) {
-                File source =  ModUpdater.cachedFiles.get(id);
-                File dest =  ModUpdater.modFiles.get(id);
+                File source = ModUpdater.cachedFiles.get(id);
+                File dest = ModUpdater.modFiles.get(id);
                 if (source != null && source.exists() && dest != null && dest.exists()) {
                     System.out.println("Attempting to update " + id);
                     try {
@@ -50,7 +52,10 @@ public class UpdateUtils {
                         if (!source.delete())
                             System.out.println("Could not delete cache for mod: " + id);
                         System.out.println("Updated successfully.");
-                        Config.modData.get(id).tag =  ModUpdater.tags.get(id);
+                        if (ModUpdater.tags.containsKey(id))
+                            Config.modData.get(id).tag = ModUpdater.tags.get(id);
+                        else if (SkyClientUpdater.skyClientVersions.containsKey(id))
+                            Config.modData.get(id).skyClientVersion = SkyClientUpdater.skyClientVersions.get(id);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -58,7 +63,7 @@ public class UpdateUtils {
                     System.out.println("Attempting to update " + id);
                     if (source.renameTo(source)) {
                         System.out.println("Updated successfully.");
-                        Config.modData.get(id).tag =  ModUpdater.tags.get(id);
+                        Config.modData.get(id).tag = ModUpdater.tags.get(id);
                     } else
                         System.out.println("Update failed.");
                 } else
