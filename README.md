@@ -21,7 +21,7 @@
  ### This mods objective is to automatically update all of your mods before Minecraft starts!
  
  It can be easily configured by typing /autoupdater, it will try to find github links for your mods automatically but might fail at this.
- For the auto updater to work optimally, please make sure it is at the top of your mods folder in alphabetical older.
+ For the auto updater to work optimally, please make sure it is at the top of your mods folder in alphabetical order.
  You can put your own GitHub link in the text box. This link must match the regex `(https://)?(github\.com/)?(?<user>[\w-]{0,39})(/)(?<repo>[\w-]{0,40})(.*)`.
  The updater doesn't update any of your mods by default, this is to avoid that it downgrades any of your mods if the latest release isn't on github.
  It also doesn't update the name of your mod file, why that is I will get into in the techinal detail part.
