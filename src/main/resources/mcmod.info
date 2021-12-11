@@ -2,7 +2,7 @@
   {
     "modid": "autoupdater",
     "name": "Auto Updater",
-    "description": "Auto Updater",
+    "description": "Mod that automatically updates your mods :)",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "url": "https://github.com/DeDiamondPro/Auto-Updater",

@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +40,7 @@ public class ModUpdater {
         File modDir = new File("mods");
         if (!modDir.exists() || !modDir.isDirectory() || modDir.listFiles() == null)
             return;
-        List<File> allMods = Arrays.asList(modDir.listFiles());
+        List<File> allMods = new ArrayList<>(Arrays.asList(modDir.listFiles()));
         File versionModDir = new File("mods/" + Loader.MC_VERSION);
         if (versionModDir.exists() && versionModDir.isDirectory() && versionModDir.listFiles() != null)
             allMods.addAll(Arrays.asList(versionModDir.listFiles()));

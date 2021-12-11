@@ -7,7 +7,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
-@Mod(modid = "autoupdater", name = "Auto Updater", version = "1.0")
+@Mod(modid = "autoupdater", name = "Auto Updater", version = "1.1.1")
 public class AutoUpdater {
     @Mod.EventHandler
     public void onFMLInitialization(FMLInitializationEvent event) {
